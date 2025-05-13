@@ -12,6 +12,7 @@ from typing import Optional, List, Dict, Any, Union
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier, IsolationForest
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score, accuracy_score, f1_score, precision_score, recall_score
+from utils import calc_inverters_generation, TimeSeriesValue
 
 # Diretório para armazenar modelos e resultados
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -66,9 +67,33 @@ def preparar_dados_geracao(db, data_inicio, data_fim):
     df['dia_semana'] = df['dia_date'].dt.dayofweek
     df['mes'] = df['dia_date'].dt.month
     
-    # Calcular geração do dia (implementação simplificada)
-    # Na implementação real, você usaria a mesma lógica que está em calc_inverters_generation
-    df['geracao'] = df['potencia_maxima'] * (df['num_medicoes'] / 24) * 0.8 / 1000  # kWh
+    # Calcular geração diária usando a implementação completa de calc_inverters_generation
+    geracoes = []
+    for _, row in df.iterrows():
+        inversor_id = row['inversor_id']
+        dia_inicio = datetime.combine(row['dia_date'].date(), datetime.min.time())
+        dia_fim = datetime.combine(row['dia_date'].date(), datetime.max.time())
+        
+        # Buscar todas as medições do dia para este inversor
+        medicoes_detalhadas = db.query(Medicao).filter(
+            Medicao.inversor_id == inversor_id,
+            Medicao.timestamp >= dia_inicio,
+            Medicao.timestamp <= dia_fim
+        ).order_by(Medicao.timestamp).all()
+        
+        # Converter para o formato esperado por calc_inverters_generation
+        power = [TimeSeriesValue(value=m.potencia_ativa, date=m.timestamp) 
+                 for m in medicoes_detalhadas if m.potencia_ativa is not None]
+        
+        if power:
+            entity = type('Entity', (), {'power': power})()
+            geracao_dia = calc_inverters_generation([entity])
+            geracoes.append(geracao_dia)
+        else:
+            geracoes.append(0)
+    
+    # Adicionar coluna de geração ao dataframe
+    df['geracao'] = geracoes
     
     # Preparar X e y
     features = ['temperatura_media', 'potencia_maxima', 'dia_semana', 'mes', 'inversor_id']
