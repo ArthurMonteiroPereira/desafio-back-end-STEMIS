@@ -42,7 +42,7 @@ frontend/                     # Interface de usuário
 ### Banco de Dados
 - SQLAlchemy como ORM
 - Modelos relacionais para usinas, inversores e medições
-- Persistência em SQLite para facilidade de implantação (configurável para outros SGBD)
+- Persistência em PostgreSQL para robustez e escalabilidade
 
 ### Agregações
 - Processamento assíncrono para cálculos intensivos
@@ -52,6 +52,7 @@ frontend/                     # Interface de usuário
 ## Requisitos
 
 - Python 3.8+
+- PostgreSQL 12+
 - RabbitMQ
 - Dependências listadas em requirements.txt
 
@@ -65,14 +66,36 @@ git clone <repositório>
 cd desafio-back-end-STEMIS
 
 # Crie e ative um ambiente virtual
-python -m venv venv
-source venv/bin/activate  # No Windows: venv\Scripts\activate
+conda create -n usinas_fotovoltaicas python=3.13.2
+conda activate usinas_fotovoltaicas  # Mesmo comando para Windows e Linux/Mac
 
 # Instale as dependências
 pip install -r backend/requirements.txt
 ```
 
-### 2. Configuração do RabbitMQ
+### 2. Configuração do PostgreSQL
+
+1. Instale o PostgreSQL:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install postgresql postgresql-contrib
+   
+   # Windows: Baixe e instale de https://www.postgresql.org/download/windows/
+   ```
+
+2. Crie um banco de dados para o projeto:
+   ```bash
+   sudo -u postgres psql
+   
+   # No console do PostgreSQL
+   CREATE DATABASE usinas_db;
+
+   ```
+
+3. Configure as variáveis de ambiente de acesso ao banco:
+    se criou um banco padrao postgreSQL utilize o .env de exemplo
+
+### 3. Configuração do RabbitMQ
 
 Certifique-se que o RabbitMQ está instalado e em execução:
 
@@ -84,15 +107,15 @@ sudo systemctl start rabbitmq-server
 # No Windows, baixe e instale de https://www.rabbitmq.com/download.html
 ```
 
-### 3. Populando o Banco de Dados
-
+### 4. Populando o Banco de Dados
+Use a interface front para popular com json desejado ou o script para popular com json de amostra fornecido no desafio
 ```bash
 # Execute o script para popular o banco com dados de amostra
 cd backend
 python -m scripts.popula_banco
 ```
 
-### 4. Iniciando o Worker
+### 5. Iniciando o Worker
 
 ```bash
 # Em um terminal separado
@@ -100,7 +123,7 @@ cd backend
 python -m app.workers.worker
 ```
 
-### 5. Iniciando a API
+### 6. Iniciando a API
 
 ```bash
 # Em outro terminal
@@ -111,7 +134,32 @@ uvicorn app.main:app --reload
 A API estará disponível em: http://localhost:8000
 Documentação Swagger: http://localhost:8000/docs
 
+### 6. Iniciando o Front
+
+```bash
+streamlit run .\frontend\app.py
+```
+acesse:  http://localhost:8501 para vizualizar o dashboard
+
+## Dicas
+
+1. A pasta scripts contem um arquivo chamado gera_metrics_sintetico.py que pode ser executado separadamente para gerar um arquivo de medições factivel para melhorar o teste das soluções de analises baseadas em modelos de IA
+2. Arquivos de mestricas gerados e fornecidos no desafio estão na pasta sample
+3. Analises geradas estao nas pastas backend/workers/results_*
+4. Modelos de IA gerados e treinados estao na pasta backend/workers/models
+5. Para executar e testar tudo mantenha 3 terminais abertos:
+    - um para executar o worker
+    - um para executar a API
+    - um para executar o front
+
+
+## Considerações Finais e desenvolvimentos complementares futuros
+
+1. Dockerizar tudo para facilitar a execução e teste do projeto.
+2. Criar testes unitarios para validar o funcionamento das funcoes e endpoints da API
+3. Criar um sistema de logging para facilitar a debugagem e monitoramento do projeto
 ## Fluxos Sugeridos
+4. Front lento, usei o strealit so para testar tudo de maneira mais pratica, mas esta longe de ser o ideal.
 
 ### 1. Visualização Básica dos Dados
 
