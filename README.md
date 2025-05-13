@@ -158,8 +158,10 @@ acesse:  http://localhost:8501 para vizualizar o dashboard
 1. Dockerizar tudo para facilitar a execução e teste do projeto.
 2. Criar testes unitarios para validar o funcionamento das funcoes e endpoints da API
 3. Criar um sistema de logging para facilitar a debugagem e monitoramento do projeto
-## Fluxos Sugeridos
 4. Front lento, usei o strealit so para testar tudo de maneira mais pratica, mas esta longe de ser o ideal.
+
+## Fluxos Sugeridos
+
 
 ### 1. Visualização Básica dos Dados
 
