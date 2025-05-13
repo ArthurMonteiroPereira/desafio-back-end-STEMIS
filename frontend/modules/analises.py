@@ -92,20 +92,29 @@ def render_analises():
             # Ordenar por data extraída do nome do arquivo, mais recente primeiro
             arquivos.sort(key=lambda x: extrai_data_nome_arquivo(x), reverse=True)
             for arq in arquivos:
-                caminho = os.path.join(RESULTS_DIR, arq)
-                with open(caminho, 'r', encoding='utf-8') as f:
-                    dado = json.load(f)
-                with st.expander(f"{dado['tipo'].replace('_', ' ').title()} - {arq}", expanded=False):
-                    st.write("**Parâmetros:**")
-                    for k, v in dado['parametros'].items():
-                        st.write(f"{k}: {v}")
-                    st.write("**Resultado:**")
-                    if isinstance(dado['resultado'], list) and dado['resultado'] and isinstance(dado['resultado'][0], dict):
-                        st.dataframe(dado['resultado'])
-                    else:
-                        st.write(dado['resultado'])
+                try:
+                    caminho = os.path.join(RESULTS_DIR, arq)
+                    with open(caminho, 'r', encoding='utf-8') as f:
+                        dado = json.load(f)
+                    
+                    # Verificar se o arquivo possui a chave 'tipo'
+                    if 'tipo' not in dado:
+                        continue  # Ignorar este arquivo e seguir para o próximo
+                        
+                    with st.expander(f"{dado['tipo'].replace('_', ' ').title()} - {arq}", expanded=False):
+                        st.write("**Parâmetros:**")
+                        for k, v in dado['parametros'].items():
+                            st.write(f"{k}: {v}")
+                        st.write("**Resultado:**")
+                        if isinstance(dado['resultado'], list) and dado['resultado'] and isinstance(dado['resultado'][0], dict):
+                            st.dataframe(dado['resultado'])
+                        else:
+                            st.write(dado['resultado'])
+                except Exception as e:
+                    # Ignorar silenciosamente quaisquer erros e continuar
+                    continue
         else:
             st.info("Nenhuma análise encontrada.")
 
-    st.write("Consultas de potência máxima, média temperatura, geração, etc (a implementar)")
+
     # Aqui você pode criar forms para POST nos endpoints de agregação e exibir resultados 

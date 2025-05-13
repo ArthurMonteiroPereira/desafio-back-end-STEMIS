@@ -83,6 +83,3 @@ def render_inserir_dados():
                     st.error(f"Erro: {resp.text}")
             except Exception as e:
                 st.error(f"Erro ao conectar com a API: {e}")
-
-    st.write("Formulários para cadastrar usina, inversor e medição (a implementar)")
-    # Aqui você pode criar forms para POST nos endpoints de usina, inversor, medicao 

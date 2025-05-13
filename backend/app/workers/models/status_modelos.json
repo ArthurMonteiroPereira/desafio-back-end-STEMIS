@@ -1,0 +1,19 @@
+{
+  "data_treinamento": "2025-05-13T17:55:25.758762",
+  "periodo_treinamento": {
+    "data_inicio": "2025-01-31",
+    "data_fim": "2025-02-09"
+  },
+  "modelo_geracao": {
+    "mae": 0.006088500000000548,
+    "r2": 0.9994533328527181
+  },
+  "modelo_classificacao": {
+    "acuracia": 1.0,
+    "f1": 1.0
+  },
+  "modelo_anomalias": {
+    "precisao": 0.9333333333333333,
+    "recall": 0.9333333333333333
+  }
+}
